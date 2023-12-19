@@ -17,15 +17,10 @@ import java.util.concurrent.TimeUnit;
 
 public class DataVerificationAutomation {
     public static void main(String[] args) {
-        // List of names and corresponding companies
-        String[][] profiles = {
-                {"Bhasker Makulwar", "Sonasddsdta Software"},
-                {"Bhasker Makulwar", "Sonata Software"},
-        };
-
+        long startTime = System.currentTimeMillis();
         System.setProperty("webdriver.chrome.driver", "D:\\ChromeDriver\\119_chromedriver-win64 (1)\\chromedriver-win64\\chromedriver.exe");
         WebDriver driver = new ChromeDriver();
-        WebDriverWait wait = new WebDriverWait(driver, 15);
+        WebDriverWait wait = new WebDriverWait(driver, 10);
 
         // Navigate to LinkedIn login page
         driver.get("https://www.linkedin.com/login");
@@ -41,13 +36,14 @@ public class DataVerificationAutomation {
         WebElement loginButton = driver.findElement(By.xpath("//button[@type='submit']"));
         loginButton.click();
 
-        // Create a new Excel workbook
-        try (Workbook workbook = new XSSFWorkbook()) {
-            // Create a new sheet
-            Sheet sheet = workbook.createSheet("LinkedIn Profiles");
+        try (FileInputStream fileInputStream = new FileInputStream("C:\\Users\\rbolla\\Documents\\TestData.xlsx");
+             Workbook workbook = new XSSFWorkbook(fileInputStream);
+             FileOutputStream fileOut = new FileOutputStream("LinkedInProfiles.xlsx")) {
+
+            Sheet sheet = workbook.getSheet("Sheet1");
 
             // Create header row
-            Row headerRow = sheet.createRow(0);
+            Row headerRow = sheet.getRow(0);
             String[] headers = {"Sno", "Name", "Company_name", "Status"};
             for (int i = 0; i < headers.length; i++) {
                 Cell cell = headerRow.createCell(i);
@@ -55,10 +51,15 @@ public class DataVerificationAutomation {
             }
 
             int rowNum = 1;
+            int endRow = 2;
 
-            for (String[] profile : profiles) {
-                String name = profile[0];
-                String company = profile[1];
+            for (int i = 1; i <= endRow; i++) {
+                Row row = sheet.getRow(i);
+                String name = row.getCell(5).getStringCellValue();
+                String company = row.getCell(6).getStringCellValue();
+
+                System.out.println("name"+name);
+                System.out.println("Company"+company);
 
                 // Step 2: Search for the name and press Enter
                 WebElement searchBox = driver.findElement(By.xpath("//input[@placeholder='Search']"));
@@ -98,19 +99,19 @@ public class DataVerificationAutomation {
                     }
 
                     // Write data to Excel sheet
-                    Row row = sheet.createRow(rowNum++);
-                    row.createCell(0).setCellValue(rowNum - 1);
-                    row.createCell(1).setCellValue(name);
-                    row.createCell(2).setCellValue(company);
-                    row.createCell(3).setCellValue(status);
+                    Row resultRow = sheet.createRow(rowNum++);
+                    resultRow.createCell(0).setCellValue(rowNum - 1);
+                    resultRow.createCell(1).setCellValue(name);
+                    resultRow.createCell(2).setCellValue(company);
+                    resultRow.createCell(3).setCellValue(status);
                 } catch (TimeoutException e) {
                     System.out.println(name + " works in a different company");
                     // Write data to Excel sheet for profiles with different organizations
-                    Row row = sheet.createRow(rowNum++);
-                    row.createCell(0).setCellValue(rowNum - 1);
-                    row.createCell(1).setCellValue(name);
-                    row.createCell(2).setCellValue(company);
-                    row.createCell(3).setCellValue("Different company");
+                    Row resultRow = sheet.createRow(rowNum++);
+                    resultRow.createCell(0).setCellValue(rowNum - 1);
+                    resultRow.createCell(1).setCellValue(name);
+                    resultRow.createCell(2).setCellValue(company);
+                    resultRow.createCell(3).setCellValue("Different company");
                 }
 
                 // Go back to the search results page
@@ -118,16 +119,16 @@ public class DataVerificationAutomation {
             }
 
             // Save the workbook to a file
-            try (FileOutputStream fileOut = new FileOutputStream("LinkedInProfiles.xlsx")) {
-                workbook.write(fileOut);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            workbook.write(fileOut);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Close the browser
         driver.quit();
+        long endTime = System.currentTimeMillis();
+        long executionTime = endTime - startTime;
+        System.out.println("Execution time: " + executionTime + " milliseconds");
+
     }
 }
