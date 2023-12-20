@@ -18,10 +18,10 @@ import java.util.concurrent.TimeUnit;
 public class DataVerificationAutomation {
     public static void main(String[] args) {
         // List of names and corresponding companies
+        long startTime = System.currentTimeMillis();
+
         String[][] profiles = {
-                {"Katherine Adams", "JETNET"},
-                //{"Randy Ahlm", "Boston Retail Solutions "},
-                //{"Jim Akerhielm", "iVision "}
+                {"Katherine Adams,JETNET", "JETNET"},
         };
 
         System.setProperty("webdriver.chrome.driver", "D:\\ChromeDriver\\119_chromedriver-win64 (1)\\chromedriver-win64\\chromedriver.exe");
@@ -77,10 +77,17 @@ public class DataVerificationAutomation {
                 } catch (TimeoutException e) {
                     // If the "View full profile" button is not present, click on the link corresponding to the name
                     try {
+                        String[] parts = name.split(",");
+                        name = parts[0];
                         WebElement nameLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("//span[text()='" + name + "']/ancestor::a")));
                         nameLink.click();
                     } catch (TimeoutException ex) {
                         System.out.println("No search result found for " + name);
+                        Row resultRow = sheet.createRow(rowNum++);
+                        resultRow.createCell(0).setCellValue(rowNum - 1);
+                        resultRow.createCell(1).setCellValue(name);
+                        resultRow.createCell(2).setCellValue(company);
+                        resultRow.createCell(3).setCellValue("No results");
                         continue; // Move to the next iteration if the link is not found
                     }
                 }
@@ -88,8 +95,8 @@ public class DataVerificationAutomation {
                 // Check the current company name on the profile
                 try {
                     WebElement companyNameElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(text(), '" + company + "')]/ancestor::span")));
-                    WebElement nextLineElement = companyNameElement.findElement(By.xpath("./following-sibling::*"));
-
+                    WebElement nextLineElement = null;
+                    nextLineElement = companyNameElement.findElement(By.xpath("./following-sibling::*"));
                     // Check if the text contains "Present" or "present"
                     String status = nextLineElement.getText().toLowerCase().contains("present") ? "Same company" : "Different company";
                     System.out.println("Status of "+name+ " "+status);
@@ -102,6 +109,11 @@ public class DataVerificationAutomation {
                     row.createCell(3).setCellValue(status);
                 } catch (TimeoutException e) {
                     System.out.println(name + " works in a different company");
+                    Row resultRow = sheet.createRow(rowNum++);
+                    resultRow.createCell(0).setCellValue(rowNum - 1);
+                    resultRow.createCell(1).setCellValue(name);
+                    resultRow.createCell(2).setCellValue(company);
+                    resultRow.createCell(3).setCellValue("Recheck");
                 }
 
                 // Go back to the search results page
@@ -120,5 +132,11 @@ public class DataVerificationAutomation {
 
         // Close the browser
         driver.quit();
+
+        long endTime = System.currentTimeMillis();
+        long executionTime = endTime - startTime;
+        double executionTimeInMinutes = (double) executionTime / 60000.0;
+        System.out.println("Execution time: " + executionTimeInMinutes + " minutes");
+        System.out.println("Execution time: " + executionTimeInMinutes + " minutes");
     }
 }
