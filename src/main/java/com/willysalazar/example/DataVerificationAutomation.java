@@ -21,73 +21,13 @@ public class DataVerificationAutomation {
         long startTime = System.currentTimeMillis();
 
         String[][] profiles = {
-                {"Brendan Achariyakosol", "Evolute Capital"},
-                {"Bob Adams", "Growth Operators"},
-                {"Brad Adams", "TM Capital Corporation"},
-                {"Bryan Adams", "Integrity Marketing Group"},
-                {"Jane Adams", "Piper Jaffray & Company"},
-                {"Katherine Adams", "JETNET"},
-                {"Mark Affolter", "Ares Management LLC"},
-                {"Sergey Agafonkin", "Opus Financial Partners"},
-                {"Donald Agee", "CMF Associates"},
-                {"Rahul Aggarwal", "Brentwood Associates"},
-                {"Steven Aguiar", "Provident Healthcare Partners"},
-                {"Mike Ahern", "Medsphere Systems Corporation"},
-                {"Randy Ahlm", "Boston Retail Solutions"},
-                {"Giray Aikar", "Convey Health Solutions"},
-                {"Brad Akason", "Lincoln International"},
-                {"Omar Akbar", "Aperion Management"},
-                {"Jim Akerhielm", "iVision"},
-                {"Darren Alcus", "Capital One"},
-                {"Mohammed Algazi", "Wells Fargo"},
-                {"Jeremy Alinder", "Blue Ops"},
-                {"James Allegretti", "Deloitte & Touche LLP"},
-                {"Scott Allen", "Morris Manning & Martin, LLP"},
-                {"Howard Allred", "West Star Aviation, Inc."},
-                {"Mike Altman", "Cortland Partners"},
-                {"Lee Alvarez", "Marwood Group"},
-                {"Scott Ames", "Cascadia Capital"},
-                {"Richard Amistadi", "Amistadi Associates LLC"},
-                {"Road Ammons", "ECD Capital Partners"},
-                {"Elliot Amundson", "TripleTree"},
-                {"Andy Anderson", "Thirdera"},
-                {"Bill Anderson", "HealthTech"},
-                {"Brent Anderson", "Ernst & Young"},
-                {"Chad Anderson", "JetCraft Corporation"},
-                {"Keith Anderson", "Piper Jaffray & Company"},
-                {"Lain Anderson", "L.E.K. Consulting"},
-                {"Robert Andrews", "Robert W. Baird"},
-                {"Thomas Anspach", "Anspach"},
-                {"Gregg Antenen", "Vistio"},
-                {"Anita Antenucci", "3Wire Partners"},
-                {"Michael Anton", "LogixHealth"},
-                {"Kojo Appenteng", "Stifel Financial Corp."},
-                {"Tony Aquilina", "Thomas H. Lee Partners, L.P."},
-                {"Robert Arditi", "Bessemer Venture Partners"},
-                {"Steve Arentsen", "Wells Fargo"},
-                {"Alan Aria", "Capital One"},
-                {"Paul Arne", "Morris Manning & Martin, LLP"},
-                {"Robert Arsov", "Hoplon Capital LLC"},
-                {"Jeff Ash", "Summit Hosting - Secure Cloud Hosting"},
-                {"Cullen Atchison", "The Houston Group Realty Advisors"},
-                {"Kevin Atchue", "TM Capital Corporation"},
-                {"Stephen Avery", "Ventra Health"},
-                {"Amit Aysola", "Create Health Ventures / Wanxiang America Corporation"},
-                {"Gene Babcock", "MarketLab"},
-                {"Kim Babcock", "Surgical Information Systems"},
-                {"Christopher Babick", "Monroe Capital LLC"},
-                {"Samuel Bachman", "Northland Capital Markets"},
-                {"Azad Badakhsh", "Moelis & Company"},
-                {"Blair Badham", "Lafayette Square"},
-                {"Benedict Baerst", "Aquiline Capital Partners LLC"},
-                {"David Bahk", "Jefferies & Company, Inc."},
-                {"Seth Bair", "Keefe, Bruyette & Woods"},
-                {"Bill Baker", "KPMG"},
-                {"Colin Baker", "Stellus Capital Management, LLC"},
-                {"Carter Balfour", "Norwest Mezzanine Partners"},
-                {"Marvin Banks", "Cortland Partners"},
-                {"Brice Baradel", "Highview Capital"},
-                {"Deborah Barbosa", "SitelogIQ"}
+                {"Brendan Achariyakosol,Evolute Capital", "Evolute Capital"},
+                {"Bob Adams,Growth Operators", "Growth Operators"},
+                {"Brad Adams,TM Capital Corporation", "TM Capital Corporation"},
+//                {"Bryan Adams,Integrity Marketing Group", "Integrity Marketing Group"},
+//                {"Jane Adams,Piper Jaffray & Company", "Piper Jaffray & Company"},
+//                {"Katherine Adams,JETNET", "JETNET"},
+                //hi
         };
 
         System.setProperty("webdriver.chrome.driver", "D:\\ChromeDriver\\119_chromedriver-win64 (1)\\chromedriver-win64\\chromedriver.exe");
@@ -135,7 +75,8 @@ public class DataVerificationAutomation {
 
                 searchBox.sendKeys(name);
                 searchBox.sendKeys(Keys.RETURN);
-
+                String[] parts = name.split(",");
+                name = parts[0];
                 // Check if the "View full profile" button is present
                 try {
                     WebElement viewFullProfileButton = wait.until(
@@ -145,8 +86,6 @@ public class DataVerificationAutomation {
                     // If the "View full profile" button is not present, click on the link
                     // corresponding to the name
                     try {
-                        String[] parts = name.split(",");
-                        name = parts[0];
                         WebElement nameLink = wait.until(ExpectedConditions
                                 .elementToBeClickable(By.xpath("//span[text()='" + name + "']/ancestor::a")));
                         nameLink.click();
@@ -165,7 +104,18 @@ public class DataVerificationAutomation {
                 try {
                     WebElement companyNameElement = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(text(), '" + company + "')]/ancestor::span")));
                     WebElement nextLineElement = null;
-                    nextLineElement = companyNameElement.findElement(By.xpath("./following-sibling::*"));
+                    try {
+                         //nextLineElement = wait.until(ExpectedConditions.presenceOfElementLocated(By.xpath("./following-sibling::*")));
+                         nextLineElement = companyNameElement.findElement(By.xpath("./following-sibling::*"));
+                    }catch(NoSuchElementException e){
+                        e.printStackTrace();
+                        Row row = sheet.createRow(rowNum++);
+                        row.createCell(0).setCellValue(rowNum - 1);
+                        row.createCell(1).setCellValue(name);
+                        row.createCell(2).setCellValue(company);
+                        row.createCell(3).setCellValue("Present keyword is not in right position");
+                        continue;
+                    }
                     String status;
                     if (nextLineElement.getText().toLowerCase().contains("present")) {
                         status = "Same company";
@@ -173,7 +123,7 @@ public class DataVerificationAutomation {
                         // Add your specific condition to check for "Recheck"
                         status = "Present keyword is not in right position";
                     } else {
-                        status = "Different company";
+                        status = "Different company 170 line";
                     }
                     System.out.println("Status of " + name + " " + status);
 
@@ -184,12 +134,12 @@ public class DataVerificationAutomation {
                     row.createCell(2).setCellValue(company);
                     row.createCell(3).setCellValue(status);
                 } catch (TimeoutException e) {
-                    System.out.println(name + " works in a different company");
+                    System.out.println(name + " different company");
                     Row resultRow = sheet.createRow(rowNum++);
                     resultRow.createCell(0).setCellValue(rowNum - 1);
                     resultRow.createCell(1).setCellValue(name);
                     resultRow.createCell(2).setCellValue(company);
-                    resultRow.createCell(3).setCellValue("Different company");
+                    resultRow.createCell(3).setCellValue("Different company(Recheck)");
                 } catch (NoSuchElementException e) {
                     System.out.println("Company details not found in the profile");
                     Row resultRow = sheet.createRow(rowNum++);
