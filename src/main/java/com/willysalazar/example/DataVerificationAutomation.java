@@ -21,13 +21,7 @@ public class DataVerificationAutomation {
         long startTime = System.currentTimeMillis();
 
         String[][] profiles = {
-                {"Brendan Achariyakosol,Evolute Capital", "Evolute Capital"},
-                {"Bob Adams,Growth Operators", "Growth Operators"},
-                {"Brad Adams,TM Capital Corporation", "TM Capital Corporation"},
-//                {"Bryan Adams,Integrity Marketing Group", "Integrity Marketing Group"},
-//                {"Jane Adams,Piper Jaffray & Company", "Piper Jaffray & Company"},
-//                {"Katherine Adams,JETNET", "JETNET"},
-                //hi
+                {"Rohith Bolla,Encore Software Services, Inc.", "Encore Software Services, Inc."},
         };
 
         System.setProperty("webdriver.chrome.driver", "D:\\ChromeDriver\\119_chromedriver-win64 (1)\\chromedriver-win64\\chromedriver.exe");
@@ -81,7 +75,11 @@ public class DataVerificationAutomation {
                 try {
                     WebElement viewFullProfileButton = wait.until(
                             ExpectedConditions.elementToBeClickable(By.xpath("//span[text()='View full profile']")));
-                    viewFullProfileButton.click();
+                    try {
+                        viewFullProfileButton.click();
+                    }catch (Exception e){
+                        continue;
+                    }
                 } catch (TimeoutException e) {
                     // If the "View full profile" button is not present, click on the link
                     // corresponding to the name
