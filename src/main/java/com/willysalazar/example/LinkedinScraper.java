@@ -1,6 +1,5 @@
 package com.willysalazar.example;
 
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -13,10 +12,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.NoSuchElementException;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class LinkedinScraper {
 
@@ -90,7 +86,7 @@ public class LinkedinScraper {
 
                 } catch (Exception e) {
                     // Write to Excel sheet for unsuccessful run
-                    writeToExcel(sheet, rowNumber++, profile[0], "Failed");
+                    writeToExcel(sheet, rowNumber++, profile[0], "No Results `Found`");
                     continue;
                 }
             } catch (TimeoutException e) {
@@ -117,7 +113,7 @@ public class LinkedinScraper {
 
                 } catch (TimeoutException | InterruptedException ex) {
                     // Write to Excel sheet for unsuccessful run
-                    writeToExcel(sheet, rowNumber++, profile[0], "Failed");
+                    writeToExcel(sheet, rowNumber++, profile[0], "No Results foundl");
                     System.out.println("No search result found for " + name);
                     continue;
                 }
