@@ -16,11 +16,18 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 
 public class LinkedinScraperExcelInput {
     public static void main(String[] args) {
+
+        long startTime = System.currentTimeMillis();
+
+        Scanner sc = new Scanner(System.in);
+        System.out.println("Enter the row count in input Excel");
+        int maxRows = sc.nextInt();
         try {
             FileInputStream inputStream = new FileInputStream(new File("C:\\Users\\rbolla\\Desktop\\MyTestData.xlsx"));
             XSSFWorkbook excelWorkbook = new XSSFWorkbook(inputStream);
@@ -29,7 +36,6 @@ public class LinkedinScraperExcelInput {
             // Check if the sheet exists
             if (excelSheet == null) {
                 System.out.println("Sheet with name 'Sheet1' not found in the workbook.");
-                // Handle this situation as needed (e.g., close resources and exit)
                 inputStream.close();
                 excelWorkbook.close();
                 return;
@@ -37,12 +43,12 @@ public class LinkedinScraperExcelInput {
 
             int headerRowNum = 0; // Assuming the header is in the first row
 
-            // Find the column index for "Full Name"
+            // Finding the column index for "Full Name"
             int fullNameColumnIndex = -1;
             int companyColumnIndex = -1;
             org.apache.poi.ss.usermodel.Row headerRow1 = excelSheet.getRow(headerRowNum);
             if (headerRow1 != null) {
-                // Iterate through the cells in the header row to find the "Full Name" column
+                // Iterating through the cells in the header row to find the "Full Name" column
                 for (int i = headerRow1.getFirstCellNum(); i < headerRow1.getLastCellNum(); i++) {
                     String cellValue = headerRow1.getCell(i).getStringCellValue();
                     if ("Full Name".equalsIgnoreCase(cellValue)) {
@@ -56,7 +62,6 @@ public class LinkedinScraperExcelInput {
             // Check if the "Full Name" and "Company" columns are found
             if (fullNameColumnIndex == -1 || companyColumnIndex == -1) {
                 System.out.println("Columns 'Full Name' and 'Company' not found in the sheet.");
-                // Handle this situation as needed (e.g., close resources and exit)
                 inputStream.close();
                 excelWorkbook.close();
                 return;
@@ -66,7 +71,7 @@ public class LinkedinScraperExcelInput {
             WebDriverWait wait = new WebDriverWait(driver, 10);
 
             Workbook workbook = new XSSFWorkbook();
-            Sheet sheet = workbook.createSheet("LinkedInProfiles");
+            Sheet sheet = workbook.createSheet("LinkedInProfiles_usernames");
 
             Row headerRow = sheet.createRow(0);
             headerRow.createCell(0).setCellValue("Sno");
@@ -87,7 +92,6 @@ public class LinkedinScraperExcelInput {
             loginButton.click();
 
             int rowNumber = 1; // Start from row 1 (after the header row)
-            int maxRows = 100; // Maximum number of rows to process
 
             // Iterate through rows and get profiles from Excel sheet
             for (int rowNum = headerRowNum + 1; rowNum <= excelSheet.getLastRowNum() && rowNumber <= maxRows; rowNum++) {
@@ -179,6 +183,13 @@ public class LinkedinScraperExcelInput {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        long endTime = System.currentTimeMillis();
+        long elapsedTimeInMillis = endTime - startTime;
+        long elapsedTimeInSeconds = elapsedTimeInMillis / 1000;
+        long elapsedTimeInMinutes = elapsedTimeInSeconds / 60;
+
+        System.out.println("Total execution time: " + elapsedTimeInMinutes + " minutes and " +
+                (elapsedTimeInSeconds % 60) + " seconds");
     }
 
     private static void writeToExcel(Sheet sheet, int rowNum, String name, String username) {
