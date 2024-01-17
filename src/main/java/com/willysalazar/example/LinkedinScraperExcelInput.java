@@ -85,8 +85,8 @@ public class LinkedinScraperExcelInput {
             WebElement usernameInput = driver.findElement(By.id("username"));
             WebElement passwordInput = driver.findElement(By.id("password"));
 
-            usernameInput.sendKeys("rohithbolla97@gmail.com");
-            passwordInput.sendKeys("Encoress@123");
+            usernameInput.sendKeys("Enter your username");
+            passwordInput.sendKeys("Enter your password");
 
             WebElement loginButton = driver.findElement(By.xpath("//button[@type='submit']"));
             loginButton.click();
