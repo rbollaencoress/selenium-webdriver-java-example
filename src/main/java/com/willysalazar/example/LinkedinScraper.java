@@ -25,7 +25,8 @@ public class LinkedinScraper {
                 {"Stephen Blumenreich,BNP Paribas", "BNP Paribas"},
         };
 
-        System.setProperty("webdriver.chrome.driver", "D:\\ChromeDriver\\119_chromedriver-win64 (1)\\chromedriver-win64\\chromedriver.exe");
+        System.setProperty("webdriver.chrome.driver", "D:\\ChromeDriver\\121 version\\chromedriver-win64\\chromedriver.exe");
+
         WebDriver driver = new ChromeDriver();
         WebDriverWait wait = new WebDriverWait(driver, 10);
 

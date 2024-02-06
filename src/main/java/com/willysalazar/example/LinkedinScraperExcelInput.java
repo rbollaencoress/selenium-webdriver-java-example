@@ -1,5 +1,6 @@
 package com.willysalazar.example;
 
+import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -7,6 +8,7 @@ import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -29,7 +31,8 @@ public class LinkedinScraperExcelInput {
         System.out.println("Enter the row count in input Excel");
         int maxRows = sc.nextInt();
         try {
-            FileInputStream inputStream = new FileInputStream(new File("C:\\Users\\rbolla\\Desktop\\MyTestData.xlsx"));
+            //FileInputStream inputStream = new FileInputStream(new File("C:\\Users\\rbolla\\Desktop\\MyTestData.xlsx"));
+            FileInputStream inputStream = new FileInputStream(new File("D:\\Contacts\\MyData.xlsx"));
             XSSFWorkbook excelWorkbook = new XSSFWorkbook(inputStream);
             XSSFSheet excelSheet = excelWorkbook.getSheet("Sheet1");
 
@@ -66,9 +69,13 @@ public class LinkedinScraperExcelInput {
                 excelWorkbook.close();
                 return;
             }
+            System.setProperty("webdriver.chrome.driver", "D:\\ChromeDriver\\121 version\\chromedriver-win64\\chromedriver.exe");
 
             WebDriver driver = new ChromeDriver();
-            WebDriverWait wait = new WebDriverWait(driver, 10);
+            WebDriverWait wait = new WebDriverWait(driver, 3);
+
+            ChromeOptions options = new ChromeOptions();
+            options.addArguments("--incognito");
 
             Workbook workbook = new XSSFWorkbook();
             Sheet sheet = workbook.createSheet("LinkedInProfiles_usernames");
@@ -85,8 +92,8 @@ public class LinkedinScraperExcelInput {
             WebElement usernameInput = driver.findElement(By.id("username"));
             WebElement passwordInput = driver.findElement(By.id("password"));
 
-            usernameInput.sendKeys("Enter your username");
-            passwordInput.sendKeys("Enter your password");
+            usernameInput.sendKeys("ahladhguptagg27@gmail.com");
+            passwordInput.sendKeys("Qwerty2@");
 
             WebElement loginButton = driver.findElement(By.xpath("//button[@type='submit']"));
             loginButton.click();
@@ -99,7 +106,12 @@ public class LinkedinScraperExcelInput {
 
                 if (row != null) {
                     String fullName = row.getCell(fullNameColumnIndex).getStringCellValue();
-                    String company = row.getCell(companyColumnIndex).getStringCellValue();
+                    //String company = row.getCell(companyColumnIndex).getStringCellValue();
+                    Cell companyCell = row.getCell(companyColumnIndex);
+                    String company = "";
+                    if (companyCell != null) {
+                        company = companyCell.getStringCellValue();
+                    }
                     String[] profile = {fullName, ","+company};
                     // Step 2: Search for the name and press Enter
                     WebElement searchBox = driver.findElement(By.xpath("//input[@placeholder='Search']"));
@@ -113,13 +125,14 @@ public class LinkedinScraperExcelInput {
                     fullName = parts[0];
                     // Check if the "View full profile" button is present
                     try {
+
                         WebElement viewFullProfileButton = wait.until(
                                 ExpectedConditions.elementToBeClickable(By.xpath("//span[text()='View full profile']")));
                         try {
                             viewFullProfileButton.click();
 
                             // Introduce a delay to give LinkedIn time to load the profile page
-                            TimeUnit.SECONDS.sleep(5);
+                            TimeUnit.SECONDS.sleep(3);
 
                             // Scroll down to load all the content on the profile page
                             JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -127,14 +140,15 @@ public class LinkedinScraperExcelInput {
 
                             String currentUrl = driver.getCurrentUrl();
                             String username = extractUsernameFromUrl(currentUrl);
-                            System.out.println("Username extracted for" +fullName+" from URL: " + username);
+                            System.out.println("fullName:"+fullName+" username:"+ username);
 
                             // Write to Excel sheet
                             writeToExcel(sheet, rowNumber++, profile[0], username);
 
                         } catch (Exception e) {
                             // Write to Excel sheet for unsuccessful run
-                            writeToExcel(sheet, rowNumber++, profile[0], "No Results `Found`");
+                            writeToExcel(sheet, rowNumber++, profile[0], "No Results Found");
+                            System.out.println("fullName:"+fullName+" username:No Results Found");
                             continue;
                         }
                     } catch (TimeoutException e) {
@@ -146,7 +160,7 @@ public class LinkedinScraperExcelInput {
                             nameLink.click();
 
                             // Introduce a delay to give LinkedIn time to load the profile page
-                            TimeUnit.SECONDS.sleep(5);
+                            TimeUnit.SECONDS.sleep(3);
 
                             // Scroll down to load all the content on the profile page
                             JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -154,15 +168,15 @@ public class LinkedinScraperExcelInput {
 
                             String currentUrl = driver.getCurrentUrl();
                             String username = extractUsernameFromUrl(currentUrl);
-                            System.out.println("Username extracted from URL: " + username);
+                            System.out.println("fullName:"+fullName+" username:"+username);
 
                             // Write to Excel sheet
                             writeToExcel(sheet, rowNumber++, profile[0], username);
 
                         } catch (TimeoutException | InterruptedException ex) {
                             // Write to Excel sheet for unsuccessful run
-                            writeToExcel(sheet, rowNumber++, profile[0], "No Results foundl");
-                            System.out.println("No search result found for " + fullName);
+                            writeToExcel(sheet, rowNumber++, profile[0], "No Records Found");
+                            System.out.println("fullName:"+ fullName+"hyperlink username:No Records Found");
                             continue;
                         }
                     }
@@ -206,8 +220,8 @@ public class LinkedinScraperExcelInput {
 
             // Extract the username from the path
             String[] pathSegments = path.split("/");
-            for (int i = 0; i < pathSegments.length; i++) {
-                if ("in".equals(pathSegments[i]) && i + 1 < pathSegments.length) {
+            for (int i = 0; i < pathSegments.length - 1; i++) {
+                if ("in".equals(pathSegments[i])) {
                     return pathSegments[i + 1];
                 }
             }
