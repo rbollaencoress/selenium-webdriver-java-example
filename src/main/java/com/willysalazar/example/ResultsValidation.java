@@ -40,17 +40,6 @@ public class ResultsValidation {
             }
         }
 
-        // Check if "Company" column was found
-        if (companyColumnIndex1 == -1) {
-            throw new IllegalArgumentException("Company column not found in Sheet1.");
-        }
-
-        // Check if "Check" column was found
-        if (checkColumnIndex1 == -1) {
-            throw new IllegalArgumentException("Check column not found in Sheet1.");
-        }
-
-        // Find column index in Sheet2 for "Present Company"
         for (int i = headerRow2.getFirstCellNum(); i < headerRow2.getLastCellNum(); i++) {
             String cellValue = headerRow2.getCell(i).getStringCellValue();
             if ("Present Company".equalsIgnoreCase(cellValue)) {
@@ -60,7 +49,6 @@ public class ResultsValidation {
             }
         }
 
-        // Check if "Present Company" column was found
         if (presentCompanyColumnIndex2 == -1) {
             throw new IllegalArgumentException("Present Company column not found in Sheet2.");
         }
@@ -97,8 +85,12 @@ public class ResultsValidation {
             Cell checkCell = row1.createCell(checkColumnIndex1);
             if (companyMatchFound && jobTitleMatchFound) {
                 checkCell.setCellValue("Ok");
+            } else if (companyMatchFound) {
+                checkCell.setCellValue("Changed Job Title");
+            } else if (jobTitleMatchFound) {
+                checkCell.setCellValue("Changed Company");
             } else {
-                checkCell.setCellValue("Changed Company or Job Title");
+                checkCell.setCellValue("Changed Company and Job Title");
             }
         }
 
