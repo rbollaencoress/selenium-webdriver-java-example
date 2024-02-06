@@ -88,7 +88,9 @@ public class TestCase2 {
                     Cell presentCompanyCell = row2.getCell(presentCompanyColumnIndex2);
                     Cell designationCell = row2.getCell(designationColumnIndex2);
                     presentCompany = presentCompanyCell != null ? presentCompanyCell.getStringCellValue() : null;
+                    System.out.println(presentCompany);
                     designation = designationCell != null ? designationCell.getStringCellValue() : null;
+                    System.out.println(designation);
 
                     if (presentCompany != null && designation != null) {
                         if (companyName.equalsIgnoreCase(presentCompany)) {
@@ -104,30 +106,22 @@ public class TestCase2 {
                         }
                     }
                 }
-            }
 
-            Cell checkCell = row1.createCell(checkColumnIndex1);
-            if (companyMatchFound && jobTitleMatchFound) {
-                checkCell.setCellValue("Ok");
-            } else if (companyMatchFound) {
-                checkCell.setCellValue("Changed Job Title");
-                if (updatedJobTitleColumnIndex1 >= 0) {
+                Cell checkCell = row1.createCell(checkColumnIndex1);
+                if (companyMatchFound && jobTitleMatchFound) {
+                    checkCell.setCellValue("Ok");
+                } else if (companyMatchFound) {
+                    checkCell.setCellValue("Changed Job Title");
                     Cell updatedJobTitleCell = row1.createCell(updatedJobTitleColumnIndex1);
                     updatedJobTitleCell.setCellValue(designation); // Set the designation as updated job title
-                }
-            } else if (jobTitleMatchFound) {
-                checkCell.setCellValue("Changed Company");
-                if (updatedCompanyColumnIndex1 >= 0) {
+                } else if (jobTitleMatchFound) {
+                    checkCell.setCellValue("Changed Company");
                     Cell updatedCompanyCell = row1.createCell(updatedCompanyColumnIndex1);
                     updatedCompanyCell.setCellValue(presentCompany); // Set the present company as updated company
-                }
-            } else {
-                checkCell.setCellValue("Changed Company and Job Title");
-                if (updatedJobTitleColumnIndex1 >= 0) {
+                } else {
+                    checkCell.setCellValue("Changed Company and Job Title");
                     Cell updatedJobTitleCell = row1.createCell(updatedJobTitleColumnIndex1);
                     updatedJobTitleCell.setCellValue(designation); // Set the designation as updated job title
-                }
-                if (updatedCompanyColumnIndex1 >= 0) {
                     Cell updatedCompanyCell = row1.createCell(updatedCompanyColumnIndex1);
                     updatedCompanyCell.setCellValue(presentCompany); // Set the present company as updated company
                 }
