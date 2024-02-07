@@ -57,17 +57,25 @@ public class ResultsValidation {
             throw new IllegalArgumentException("Designation column not found in Sheet2.");
         }
 
-        int presentCompanyColumnIndex1 = headerRow1.getLastCellNum();
-        headerRow1.createCell(presentCompanyColumnIndex1).setCellValue("Present Company from Sheet2");
-        int designationColumnIndex1 = headerRow1.getLastCellNum();
-        headerRow1.createCell(designationColumnIndex1).setCellValue("Designation from Sheet2");
-
+//        int presentCompanyColumnIndex1 = headerRow1.getLastCellNum();
+//        headerRow1.createCell(presentCompanyColumnIndex1).setCellValue("Present Company from Sheet2");
+//        int designationColumnIndex1 = headerRow1.getLastCellNum();
+//        headerRow1.createCell(designationColumnIndex1).setCellValue("Designation from Sheet2");
+        int presentCompanyColumnIndex1 = findOrCreateColumn(headerRow1, "Present Company from Sheet2");
+        int designationColumnIndex1 = findOrCreateColumn(headerRow1, "Designation from Sheet2");
         for (int i = 1; i < sheet1RowCount; i++) {
             Row row1 = excelSheet1.getRow(i);
             String companyName = row1.getCell(companyColumnIndex1).getStringCellValue();
             String jobTitle = row1.getCell(jobTitleColumnIndex1).getStringCellValue();
             boolean companyMatchFound = false;
             boolean jobTitleMatchFound = false;
+
+            // Set Check cell to "Not Found" if Company is null
+            if (companyName == null || companyName.trim().isEmpty()) {
+                Cell checkCell = row1.createCell(checkColumnIndex1);
+                checkCell.setCellValue("Not Found");
+                continue; // Skip to the next row
+            }
 
             for (int j = 1; j < sheet2RowCount; j++) {
                 Row row2 = excelSheet2.getRow(j);
@@ -112,5 +120,17 @@ public class ResultsValidation {
         excelWorkbook.write(outputStream);
         excelWorkbook.close();
         outputStream.close();
+    }
+    private static int findOrCreateColumn(Row headerRow, String columnName) {
+        for (int i = headerRow.getFirstCellNum(); i < headerRow.getLastCellNum(); i++) {
+            String cellValue = headerRow.getCell(i).getStringCellValue();
+            if (columnName.equalsIgnoreCase(cellValue)) {
+                return i;
+            }
+        }
+        // If the column doesn't exist, create it
+        int columnIndex = headerRow.getLastCellNum();
+        headerRow.createCell(columnIndex).setCellValue(columnName);
+        return columnIndex;
     }
 }
