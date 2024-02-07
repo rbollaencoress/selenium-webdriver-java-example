@@ -10,7 +10,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-public class TestCase2 {
+public class TestCase22ndTime {
     public static void main(String[] args) throws IOException {
         FileInputStream inputStream = new FileInputStream(new File("D:\\Contacts\\ResultsValidation.xlsx"));
         XSSFWorkbook excelWorkbook = new XSSFWorkbook(inputStream);
@@ -77,6 +77,7 @@ public class TestCase2 {
             Cell jobTitleCell = row1.getCell(jobTitleColumnIndex1);
             String companyName = companyCell != null ? companyCell.getStringCellValue() : null;
             String jobTitle = jobTitleCell != null ? jobTitleCell.getStringCellValue() : null;
+
             boolean companyMatchFound = false;
             boolean jobTitleMatchFound = false;
             String presentCompany = "";
@@ -111,28 +112,26 @@ public class TestCase2 {
                 } else if (companyMatchFound) {
                     checkCell.setCellValue("Changed Job Title");
                     Cell updatedJobTitleCell = row1.createCell(updatedJobTitleColumnIndex1);
-                    updatedJobTitleCell.setCellValue(jobTitle); // Set the job title as updated job title
-                    Cell updatedCompanyCell = row1.createCell(updatedCompanyColumnIndex1);
-                    updatedCompanyCell.setCellValue(companyName); // Set the present company as updated company
+                    updatedJobTitleCell.setCellValue(presentCompany); // Set the job title as updated job title
+//                    Cell updatedCompanyCell = row1.createCell(updatedCompanyColumnIndex1);
+//                    updatedCompanyCell.setCellValue(presentCompany); // Set the present company as updated company
                 } else if (jobTitleMatchFound) {
                     checkCell.setCellValue("Changed Company");
                     Cell updatedJobTitleCell = row1.createCell(updatedJobTitleColumnIndex1);
                     updatedJobTitleCell.setCellValue(designation); // Set the designation as updated job title
                     Cell updatedCompanyCell = row1.createCell(updatedCompanyColumnIndex1);
-                    updatedCompanyCell.setCellValue(presentCompany); // Set the company as updated company
-//                } else {
-//                    if (!companyMatchFound && !jobTitleMatchFound) {
-//                        checkCell.setCellValue("Changed Company and Job Title");
-//                        if (updatedJobTitleColumnIndex1 >= 0) {
-//                            Cell updatedJobTitleCell = row1.createCell(updatedJobTitleColumnIndex1);
-//                            updatedJobTitleCell.setCellValue(designation); // Set the designation as updated job title
-//                        }
-//                        if (updatedCompanyColumnIndex1 >= 0) {
-//                            Cell updatedCompanyCell = row1.createCell(updatedCompanyColumnIndex1);
-//                            updatedCompanyCell.setCellValue(presentCompany); // Set the present company as updated company
-//                        }
-//                    }
-                   }
+                    updatedCompanyCell.setCellValue(companyName); // Set the company as updated company
+                } else {
+                    checkCell.setCellValue("Changed Company and Job Title");
+                    Cell updatedJobTitleCell = row1.createCell(updatedJobTitleColumnIndex1);
+                    updatedJobTitleCell.setCellValue(designation); // Set the designation as updated job title
+                    Cell updatedCompanyCell = row1.createCell(updatedCompanyColumnIndex1);
+                    updatedCompanyCell.setCellValue(presentCompany); // Set the present company as updated company
+                }
+            } else {
+                // Set "No records found" in the Check column for rows with missing data
+                Cell checkCell = row1.createCell(checkColumnIndex1);
+                checkCell.setCellValue("No records found");
             }
         }
 

@@ -57,6 +57,11 @@ public class ResultsValidation {
             throw new IllegalArgumentException("Designation column not found in Sheet2.");
         }
 
+        int presentCompanyColumnIndex1 = headerRow1.getLastCellNum();
+        headerRow1.createCell(presentCompanyColumnIndex1).setCellValue("Present Company from Sheet2");
+        int designationColumnIndex1 = headerRow1.getLastCellNum();
+        headerRow1.createCell(designationColumnIndex1).setCellValue("Designation from Sheet2");
+
         for (int i = 1; i < sheet1RowCount; i++) {
             Row row1 = excelSheet1.getRow(i);
             String companyName = row1.getCell(companyColumnIndex1).getStringCellValue();
@@ -78,8 +83,17 @@ public class ResultsValidation {
                 }
 
                 if (companyMatchFound && jobTitleMatchFound) {
-                    break; // Break the loop if both matches are found
+                    break;
                 }
+            }
+
+            if (!companyMatchFound || !jobTitleMatchFound) {
+                Row row2 = excelSheet2.getRow(i); // Adjusted row index to match Sheet1
+                String presentCompany = row2.getCell(presentCompanyColumnIndex2).getStringCellValue();
+                String designation = row2.getCell(designationColumnIndex2).getStringCellValue();
+
+                row1.createCell(presentCompanyColumnIndex1).setCellValue(presentCompany);
+                row1.createCell(designationColumnIndex1).setCellValue(designation);
             }
 
             Cell checkCell = row1.createCell(checkColumnIndex1);
