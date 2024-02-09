@@ -63,17 +63,39 @@ public class ResultsValidation {
 //        headerRow1.createCell(designationColumnIndex1).setCellValue("Designation from Sheet2");
         int presentCompanyColumnIndex1 = findOrCreateColumn(headerRow1, "Present Company from Sheet2");
         int designationColumnIndex1 = findOrCreateColumn(headerRow1, "Designation from Sheet2");
+        System.out.println(sheet1RowCount+"sheet1RowCount");
         for (int i = 1; i < sheet1RowCount; i++) {
             Row row1 = excelSheet1.getRow(i);
-            String companyName = row1.getCell(companyColumnIndex1).getStringCellValue();
-            String jobTitle = row1.getCell(jobTitleColumnIndex1).getStringCellValue();
+            //String companyName = row1.getCell(companyColumnIndex1).getStringCellValue();
+            String companyName;
+            Cell cell = row1.getCell(companyColumnIndex1);
+            if (cell != null) {
+                companyName = cell.getStringCellValue();
+            } else {
+                companyName = ""; // Assign empty string if the cell is null
+            }
+            System.out.println(companyName);
+            //String jobTitle = row1.getCell(jobTitleColumnIndex1).getStringCellValue();
+            String jobTitle;
+            Cell jobTitleCell = row1.getCell(jobTitleColumnIndex1);
+            if (jobTitleCell != null) {
+                jobTitle = jobTitleCell.getStringCellValue();
+            } else {
+                jobTitle = ""; // Assign empty string if the cell is null
+            }
             boolean companyMatchFound = false;
             boolean jobTitleMatchFound = false;
 
             // Set Check cell to "Not Found" if Company is null
             if (companyName == null || companyName.trim().isEmpty()) {
                 Cell checkCell = row1.createCell(checkColumnIndex1);
-                checkCell.setCellValue("Not Found");
+                Row row2 = excelSheet2.getRow(i); // Adjusted row index to match Sheet1
+                String presentCompany = row2.getCell(presentCompanyColumnIndex2).getStringCellValue();
+                String designation = row2.getCell(designationColumnIndex2).getStringCellValue();
+
+                row1.createCell(presentCompanyColumnIndex1).setCellValue(presentCompany);
+                row1.createCell(designationColumnIndex1).setCellValue(designation);
+                checkCell.setCellValue("Added new company and Job title");
                 continue; // Skip to the next row
             }
 
