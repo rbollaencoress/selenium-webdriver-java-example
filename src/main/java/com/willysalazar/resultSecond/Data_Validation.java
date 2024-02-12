@@ -49,14 +49,29 @@ public class Data_Validation {
                 String presentCompany1 = "";
                 Cell presentCompanyCell1 = row1.getCell(presentCompanyColumnIndex1);
                 if (presentCompanyCell1 != null) {
+
                     presentCompany1 = presentCompanyCell1.getStringCellValue();
                 }
-                String designation1 = row1.getCell(designationColumnIndex1).getStringCellValue();
+                //String designation1 = row1.getCell(designationColumnIndex1).getStringCellValue();
+                String designation1;
+                Cell designationCell1 = row1.getCell(designationColumnIndex1);
+                if (designationCell1 != null) {
+                    designation1 = designationCell1.getStringCellValue();
+                } else {
+                    designation1 = ""; // Assign empty string if the cell is null
+                }
 
 
                 String sNo2 = getCellValueAsString(row2.getCell(sNoColumnIndex2));
                 String fullName2 = row2.getCell(fullNameColumnIndex2).getStringCellValue();
-                String company2 = row2.getCell(companyColumnIndex2).getStringCellValue();
+                //String company2 = row2.getCell(companyColumnIndex2).getStringCellValue();
+                String company2;
+                Cell companyCell2 = row2.getCell(companyColumnIndex2);
+                if (companyCell2 != null) {
+                    company2 = companyCell2.getStringCellValue();
+                } else {
+                    company2 = ""; // Assign empty string if the cell is null
+                }
                 //String jobTitle2 = row2.getCell(jobTitleColumnIndex2).getStringCellValue();
                 String jobTitle2 = "";
                 Cell jobTitleCell2 = row2.getCell(jobTitleColumnIndex2);
@@ -65,7 +80,7 @@ public class Data_Validation {
                 }
 
                 if (sNo1.equals(sNo2) && fullName1.equals(fullName2)) {
-                    if(presentCompany1.equals("") && designation1.equals("") && company2.equals("") && jobTitle2.equals("")){
+                    if((presentCompany1.equals("") || designation1.equals("")) && (company2.equals("") || jobTitle2.equals(""))){
                         row2.createCell(checkColumnIndex).setCellValue("Not Found");
                     }
                     else if (presentCompany1.equals(company2) && designation1.equals(jobTitle2)) {
@@ -78,6 +93,9 @@ public class Data_Validation {
                             row2.createCell(companyColumnIndex2).setCellValue(presentCompany1);
                             row2.createCell(jobTitleColumnIndex2).setCellValue(designation1);
                         }
+                    }
+                    else if((presentCompany1.equals("") || designation1.equals("")) && !(company2.equals("") || (jobTitle2.equals("")))){
+                        row2.createCell(checkColumnIndex).setCellValue("Not Found");
                     }
                     else if(!presentCompany1.equals(company2)){
                         row2.createCell(checkColumnIndex).setCellValue("Changed Company");
