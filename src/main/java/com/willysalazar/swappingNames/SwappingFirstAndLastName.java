@@ -27,6 +27,7 @@ public class SwappingFirstAndLastName {
             Scanner sc = new Scanner(System.in);
             System.out.println("Enter the row count in input Excel");
             int maxRows = sc.nextInt();
+            String username = null;
             try {
                 //FileInputStream inputStream = new FileInputStream(new File("C:\\Users\\rbolla\\Desktop\\MyTestData.xlsx"));
                 FileInputStream inputStream = new FileInputStream(new File("D:\\Contacts\\MyData.xlsx"));
@@ -109,13 +110,6 @@ public class SwappingFirstAndLastName {
                     Row row = excelSheet.getRow(rowNum);
 
                     if (row != null) {
-                        //String fullName = row.getCell(fullNameColumnIndex).getStringCellValue();
-                        //String company = row.getCell(companyColumnIndex).getStringCellValue();
-                        //Cell companyCell = row.getCell(companyColumnIndex);
-//                        String company = "";
-//                        if (companyCell != null) {
-//                            company = companyCell.getStringCellValue();
-//                        }
                         String lastName = "";
                         String middleName = "";
                         String firstName = "";
@@ -136,7 +130,6 @@ public class SwappingFirstAndLastName {
                         if (firstNameCell != null) {
                             firstName = firstNameCell.getStringCellValue();
                         }
-                        System.out.println("Company Column Index: " + companyColumnIndex);
 
                         if (companyColumnIndex >= 0) { // Ensure companyColumnIndex is valid
                             Cell companyCell = row.getCell(companyColumnIndex);
@@ -149,17 +142,11 @@ public class SwappingFirstAndLastName {
                         String[] profile = {lastName+" "+middleName+" "+firstName +","+company};
                         System.out.println("Company:"+company);
                         System.out.println("Arrays:"+Arrays.asList(profile));
-                        // Step 2: Search for the name and press Enter
                         WebElement searchBox = driver.findElement(By.xpath("//input[@placeholder='Search']"));
-
-                        // Clear the search input before entering a new name
                         searchBox.clear();
 
                         searchBox.sendKeys(profile);
                         searchBox.sendKeys(Keys.RETURN);
-                        //String[] parts = fullName.split(",");
-                        //fullName = parts[0];
-                        // Check if the "View full profile" button is present
                         try {
 
                             WebElement viewFullProfileButton = wait.until(
@@ -175,7 +162,7 @@ public class SwappingFirstAndLastName {
                                 js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
 
                                 String currentUrl = driver.getCurrentUrl();
-                                String username = extractUsernameFromUrl(currentUrl);
+                                username = extractUsernameFromUrl(currentUrl);
                                 System.out.println("fullName:"+Arrays.asList(fullName)+" username:"+ username);
 
                                 // Write to Excel sheet
@@ -188,9 +175,13 @@ public class SwappingFirstAndLastName {
                                 continue;
                             }
                         } catch (TimeoutException e) {
-                                writeToExcel(sheet, rowNumber++, profile[0], "No Records Found");
-                                System.out.println("fullName:"+ fullName+"hyperlink username:No Records Found");
+//                                writeToExcel(sheet, rowNumber++, profile[0], "No Records Found");
+//                                System.out.println("fullName:"+ fullName+"hyperlink username:No Records Found");
+//                                continue;
+                                searchWithDifferentCases(profile, searchBox);
+                                writeToExcel(sheet, rowNumber++, profile[0], username);
                                 continue;
+
                         }
                         // Go back to the search results page
                         driver.navigate().back();
@@ -218,7 +209,45 @@ public class SwappingFirstAndLastName {
                     (elapsedTimeInSeconds % 60) + " seconds");
         }
 
-        private static void writeToExcel(Sheet sheet, int rowNum, String name, String username) {
+    private static void searchWithDifferentCases(String[] profile, WebElement searchBox) {
+        System.out.println(Arrays.asList(profile));
+        String[] splitName = profile[0].split(" ");
+        String[] searchQueries = new String[4];
+        if (splitName.length >= 3) {
+            // Case 1: middle name first name company
+            searchQueries[0] = splitName[1] + " " + splitName[2] + " " + profile[0];
+
+            // Case 2: last name first name company
+            searchQueries[1] = splitName[0] + " " + splitName[2] + " " + profile[0];
+
+            // Case 3: last name first name company
+            searchQueries[2] = splitName[0] + " " + splitName[1] + " " + profile[0];
+
+            // Case 4: first name middle name company (if middle name is not blank)
+            if (!splitName[1].isEmpty()) {
+                searchQueries[3] = splitName[2] + " " + splitName[1] + " " + profile[0];
+            }
+        }
+
+        // Search with different queries
+        for (String query : searchQueries) {
+            if (query != null) {
+                searchBox.clear();
+                searchBox.sendKeys(query);
+                searchBox.sendKeys(Keys.RETURN);
+                // Add a wait time between searches
+                try {
+                    Thread.sleep(2000); // Wait for 2 seconds between searches
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                // Add further logic here to handle the search results
+                // You can reuse the existing logic or modify it as needed
+            }
+        }
+    }
+
+    private static void writeToExcel(Sheet sheet, int rowNum, String name, String username) {
             Row row = sheet.createRow(rowNum);
             row.createCell(0).setCellValue(rowNum);
             row.createCell(1).setCellValue(name);
