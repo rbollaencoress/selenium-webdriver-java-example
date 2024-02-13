@@ -1,9 +1,6 @@
 package com.willysalazar.swappingNames;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openqa.selenium.*;
@@ -18,12 +15,12 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.concurrent.TimeUnit;
 
 public class SwappingFirstAndLastName {
-    public static void main(String[] args) {
-        public static void main(String[] args) {
+    public static void main(String[] args) throws IOException{
 
             long startTime = System.currentTimeMillis();
 
@@ -48,7 +45,7 @@ public class SwappingFirstAndLastName {
 
                 // Finding the column index for "Full Name"
                // int fullNameColumnIndex = -1;
-                //int companyColumnIndex = -1;
+                int companyColumnIndex = 7;
 
                 int firstNameColumnIndex = -1;
                 int middleNameColumnIndex = -1;
@@ -112,14 +109,46 @@ public class SwappingFirstAndLastName {
                     Row row = excelSheet.getRow(rowNum);
 
                     if (row != null) {
-                        String fullName = row.getCell(fullNameColumnIndex).getStringCellValue();
+                        //String fullName = row.getCell(fullNameColumnIndex).getStringCellValue();
                         //String company = row.getCell(companyColumnIndex).getStringCellValue();
-                        Cell companyCell = row.getCell(companyColumnIndex);
+                        //Cell companyCell = row.getCell(companyColumnIndex);
+//                        String company = "";
+//                        if (companyCell != null) {
+//                            company = companyCell.getStringCellValue();
+//                        }
+                        String lastName = "";
+                        String middleName = "";
+                        String firstName = "";
                         String company = "";
-                        if (companyCell != null) {
-                            company = companyCell.getStringCellValue();
+
+                        // Fetching values from the cells
+                        Cell lastNameCell = row.getCell(lastNameColumnIndex);
+                        if (lastNameCell != null) {
+                            lastName = lastNameCell.getStringCellValue();
                         }
-                        String[] profile = {fullName, ","+company};
+
+                        Cell middleNameCell = row.getCell(middleNameColumnIndex);
+                        if (middleNameCell != null) {
+                            middleName = middleNameCell.getStringCellValue();
+                        }
+
+                        Cell firstNameCell = row.getCell(firstNameColumnIndex);
+                        if (firstNameCell != null) {
+                            firstName = firstNameCell.getStringCellValue();
+                        }
+                        System.out.println("Company Column Index: " + companyColumnIndex);
+
+                        if (companyColumnIndex >= 0) { // Ensure companyColumnIndex is valid
+                            Cell companyCell = row.getCell(companyColumnIndex);
+                            if (companyCell != null) {
+                                company = companyCell.getStringCellValue();
+                            }
+                        }
+
+                        String[] fullName = {lastName," ",middleName," ",firstName};
+                        String[] profile = {lastName+" "+middleName+" "+firstName +","+company};
+                        System.out.println("Company:"+company);
+                        System.out.println("Arrays:"+Arrays.asList(profile));
                         // Step 2: Search for the name and press Enter
                         WebElement searchBox = driver.findElement(By.xpath("//input[@placeholder='Search']"));
 
@@ -128,8 +157,8 @@ public class SwappingFirstAndLastName {
 
                         searchBox.sendKeys(profile);
                         searchBox.sendKeys(Keys.RETURN);
-                        String[] parts = fullName.split(",");
-                        fullName = parts[0];
+                        //String[] parts = fullName.split(",");
+                        //fullName = parts[0];
                         // Check if the "View full profile" button is present
                         try {
 
@@ -147,7 +176,7 @@ public class SwappingFirstAndLastName {
 
                                 String currentUrl = driver.getCurrentUrl();
                                 String username = extractUsernameFromUrl(currentUrl);
-                                System.out.println("fullName:"+fullName+" username:"+ username);
+                                System.out.println("fullName:"+Arrays.asList(fullName)+" username:"+ username);
 
                                 // Write to Excel sheet
                                 writeToExcel(sheet, rowNumber++, profile[0], username);
@@ -159,33 +188,9 @@ public class SwappingFirstAndLastName {
                                 continue;
                             }
                         } catch (TimeoutException e) {
-                            // If the "View full profile" button is not present, click on the link
-                            // corresponding to the name
-                            try {
-                                WebElement nameLink = wait.until(ExpectedConditions
-                                        .elementToBeClickable(By.xpath("//span[text()='" + fullName + "']/ancestor::a")));
-                                nameLink.click();
-
-                                // Introduce a delay to give LinkedIn time to load the profile page
-                                TimeUnit.SECONDS.sleep(3);
-
-                                // Scroll down to load all the content on the profile page
-                                JavascriptExecutor js = (JavascriptExecutor) driver;
-                                js.executeScript("window.scrollTo(0, document.body.scrollHeight);");
-
-                                String currentUrl = driver.getCurrentUrl();
-                                String username = extractUsernameFromUrl(currentUrl);
-                                System.out.println("fullName:"+fullName+" username:"+username);
-
-                                // Write to Excel sheet
-                                writeToExcel(sheet, rowNumber++, profile[0], username);
-
-                            } catch (TimeoutException | InterruptedException ex) {
-                                // Write to Excel sheet for unsuccessful run
                                 writeToExcel(sheet, rowNumber++, profile[0], "No Records Found");
                                 System.out.println("fullName:"+ fullName+"hyperlink username:No Records Found");
                                 continue;
-                            }
                         }
                         // Go back to the search results page
                         driver.navigate().back();
@@ -238,5 +243,4 @@ public class SwappingFirstAndLastName {
 
             return null;
         }
-    }
 }
